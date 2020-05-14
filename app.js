@@ -1,4 +1,4 @@
-//var createError = require('http-errors');
+var createError = require('http-errors');
 var app = require('./config')
 var routes = require('./routes')
 

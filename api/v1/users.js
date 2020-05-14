@@ -9,22 +9,32 @@ router.use(function(req, res, next){
 })
 /* GET users listing. */
 router.route('/')
-  .get(function(req, res, next) {
-    db.query('SELECT * FROM users', (err, response) => {
+  .get(async function(req, res, next) {
+    await db.query('SELECT * FROM users', (err, response) => {
       if (err) {
         return next(err)
       }
       res.send(response.rows)
-    })
-});
-
-router.get('/:id', (req, res, next) => {
-  db.query('SELECT * FROM users WHERE id = $1', [req.params.id], (err, response) => {
-    if (err) {
-      return next(err)
-    }
-    res.send(response.rows[0])
+    })   
+})
+  .post(async (req, res, next) => {
+    console.log(req.query.email)
+    await db.query(
+      // TODO: create models folder with model for each table and corresponding functions (e.g. create)
+      // TODO: seperate into service classes)
+      'INSERT INTO users (email, firstname, lastname, age) VALUES ($1, $2, $3, $4) RETURNING *', 
+      [req.query.email, req.query.first_name, req.query.last_name, req.query.age], 
+      (err, response) => {
+        if (err){
+          next(err)
+        }
+        res.send(response.rows[0])
+      })
   })
+
+router.get('/:id', async (req, res) => {
+  const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [req.params.id])
+  res.send(rows[0])
 })
 
 router.post('/greet', function(req, res){
